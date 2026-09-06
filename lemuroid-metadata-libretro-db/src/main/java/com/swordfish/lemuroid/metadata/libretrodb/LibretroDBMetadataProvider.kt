@@ -36,8 +36,8 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
                     ?: findByFilename(db, storageFile)
                     ?: findByPathAndFilename(db, storageFile)
                     ?: findByUniqueExtension(storageFile)
-                    ?: findByKnownSystem(storageFile)
                     ?: findByPathAndSupportedExtension(storageFile)
+                    ?: findByKnownSystem(storageFile)
             }.getOrElse {
                 Timber.e("Error in retrieving $storageFile metadata: $it... Skipping.")
                 null

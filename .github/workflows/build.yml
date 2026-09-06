@@ -1,0 +1,90 @@
+name: Build PS2 Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout source and pinned submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK and CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager --install "platforms;android-35" "build-tools;34.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+
+      - name: Restore PCEE2 dependencies
+        id: pcee2-deps
+        uses: actions/cache@v4
+        with:
+          path: build/pcee2/deps
+          key: pcee2-android-arm64-v1-${{ hashFiles('pcee2-libretro/CMakeLists.txt', 'pcee2-libretro/pcee2-libretro/scripts/build-deps-android.sh', 'pcee2-libretro/pcee2-libretro/scripts/deps.versions') }}
+
+      - name: Build PCEE2 ARM64 Libretro core
+        env:
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
+        run: bash scripts/build-pcee2-android.sh
+
+      - name: Verify staged PCEE2 core
+        run: |
+          test -s build/pcee2/arm64-v8a/libpcee2_libretro_android.so
+          file build/pcee2/arm64-v8a/libpcee2_libretro_android.so | grep -q "aarch64"
+
+      - name: Create CI signing key
+        run: keytool -genkeypair -keystore release.jks -storepass lemuroid -keypass lemuroid -alias lemuroid -dname "CN=Lemuroid PS2 CI" -keyalg RSA -keysize 2048 -validity 10000
+
+      - name: Build ARM64 release APK
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          chmod +x gradlew scripts/build-pcee2-android.sh
+          ./gradlew --no-daemon :lemuroid-app:assembleFreeBundleRelease
+
+      - name: Verify APK and PCEE2 packaging
+        run: |
+          APK=lemuroid-app/build/outputs/apk/freeBundle/release/lemuroid-app-free-bundle-release.apk
+          test -s "$APK"
+          unzip -t "$APK"
+          unzip -l "$APK" | grep -q "lib/arm64-v8a/libpcee2_libretro_android.so"
+          mkdir -p release
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "$GITHUB_REF_NAME" ]; then VERSION="$GITHUB_REF_NAME"; fi
+          cp "$APK" "release/Lemuroid-PS2-${VERSION}-arm64-v8a.apk"
+          ls -lh release/
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lemuroid-PS2-arm64-v8a
+          path: release/*.apk
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release/*.apk

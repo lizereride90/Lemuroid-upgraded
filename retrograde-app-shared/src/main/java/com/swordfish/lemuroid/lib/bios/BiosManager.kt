@@ -22,6 +22,14 @@ class BiosManager(private val directoriesManager: DirectoriesManager) {
         coreConfig: SystemCoreConfig,
         game: Game,
     ): List<String> {
+        if (game.systemId == SystemID.PS2.dbname) {
+            val biosDirectory = File(directoriesManager.getSystemDirectory(), "pcsx2/bios")
+            if (biosDirectory.listFiles()?.any { it.isFile } != true) {
+                return listOf("pcsx2/bios/ (a legally dumped PS2 BIOS, e.g. scph39001.bin)")
+            }
+            return emptyList()
+        }
+
         val regionalBiosFiles = coreConfig.regionalBIOSFiles
 
         val gameLabels =
@@ -75,11 +83,23 @@ class BiosManager(private val directoriesManager: DirectoriesManager) {
         inputStream: InputStream,
         timestampMs: Long,
     ): Boolean {
-        val bios = findByCRC(storageFile) ?: findByName(storageFile) ?: return false
+        val bios = findByCRC(storageFile) ?: findByName(storageFile)
+        val biosFile =
+            when {
+                bios != null ->
+                    run {
+                        Timber.i("Importing bios file: $bios")
+                        File(directoriesManager.getSystemDirectory(), bios.libretroFileName)
+                    }
+                PS2_BIOS_FILENAME.matches(storageFile.name) ->
+                    run {
+                        Timber.i("Importing PS2 BIOS file: ${storageFile.name}")
+                        File(directoriesManager.getSystemDirectory(), "pcsx2/bios/${storageFile.name}")
+                    }
+                else -> return false
+            }
 
-        Timber.i("Importing bios file: $bios")
-
-        val biosFile = File(directoriesManager.getSystemDirectory(), bios.libretroFileName)
+        biosFile.parentFile?.mkdirs()
         if (biosFile.exists() && biosFile.setLastModified(normalizeTimestamp(timestampMs))) {
             Timber.d("Bios file already present. Updated last modification date.")
         } else {
@@ -102,6 +122,8 @@ class BiosManager(private val directoriesManager: DirectoriesManager) {
     data class BiosInfo(val detected: List<Bios>, val notDetected: List<Bios>)
 
     companion object {
+        private val PS2_BIOS_FILENAME = Regex("(?i)scph[0-9a-z_-]+\\.(bin|rom)")
+
         private val SUPPORTED_BIOS =
             listOf(
                 Bios(

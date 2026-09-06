@@ -11,9 +11,10 @@ plugins {
 android {
     defaultConfig {
         versionCode = 252
-        versionName = "1.17.0" // Always remember to update Cores Tag!
+        versionName = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: "1.17.0-ps2"
         applicationId = "com.swordfish.lemuroid"
     }
+    sourceSets.getByName("main").jniLibs.srcDir("$rootDir/build/pcee2/arm64-v8a")
     flavorDimensions += listOf("opensource", "cores")
 
     if (usePlayDynamicFeatures()) {

@@ -33,6 +33,7 @@
     <string name="game_system_abbr_nds">NDS</string>
     <string name="game_system_abbr_sms">SMS</string>
     <string name="game_system_abbr_psp">PSP</string>
+    <string name="game_system_abbr_ps2">PS2</string>
     <string name="game_system_abbr_arcade_fbneo">FBNeo</string>
     <string name="game_system_abbr_arcade_mame2003_plus">MAME2003</string>
     <string name="game_system_abbr_atari7800">A78</string>
@@ -59,6 +60,7 @@
     <string name="game_system_title_nds">Nintendo DS</string>
     <string name="game_system_title_sms">Sega Master System</string>
     <string name="game_system_title_psp">PlayStation Portable</string>
+    <string name="game_system_title_ps2">PlayStation 2</string>
     <string name="game_system_title_arcade_fbneo">FBNeo</string>
     <string name="game_system_title_arcade_mame2003_plus">MAME2003 Plus</string>
     <string name="game_system_title_atari7800">Atari 7800</string>

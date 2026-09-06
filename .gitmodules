@@ -2,3 +2,7 @@
 	path = lemuroid-cores
 	url = https://github.com/Swordfish90/LemuroidCores
 	branch = master
+[submodule "pcee2-libretro"]
+	path = pcee2-libretro
+	url = https://github.com/WizzardSK/pcee2-libretro.git
+	branch = libretro

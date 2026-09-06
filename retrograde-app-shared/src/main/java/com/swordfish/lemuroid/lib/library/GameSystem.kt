@@ -857,6 +857,35 @@ data class GameSystem(
                             scanByFilename = false,
                             scanByUniqueExtension = false,
                             scanByPathAndSupportedExtensions = true,
+                    ),
+                ),
+                GameSystem(
+                    SystemID.PS2,
+                    "Sony - PlayStation 2",
+                    R.string.game_system_title_ps2,
+                    R.string.game_system_abbr_ps2,
+                    listOf(
+                        SystemCoreConfig(
+                            CoreID.PCEE2,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to arrayListOf(ControllerConfigs.PSX_DUALSHOCK),
+                                    1 to arrayListOf(ControllerConfigs.PSX_DUALSHOCK),
+                                ),
+                            rumbleSupported = true,
+                            statesSupported = true,
+                            supportedOnlyArchitectures = setOf("arm64-v8a"),
+                            skipDuplicateFrames = false,
+                        ),
+                    ),
+                    uniqueExtensions = listOf(),
+                    supportedExtensions =
+                        listOf("iso", "chd", "cue", "m3u", "cso", "zso", "gz", "bin", "mdf", "nrg", "elf", "irx"),
+                    scanOptions =
+                        ScanOptions(
+                            scanByFilename = false,
+                            scanByUniqueExtension = false,
+                            scanByPathAndSupportedExtensions = true,
                         ),
                 ),
                 GameSystem(

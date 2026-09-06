@@ -56,6 +56,11 @@ enum class CoreID(
         "PPSSPP",
         "libppsspp_libretro_android.so",
     ),
+    PCEE2(
+        "pcee2",
+        "PCEE2",
+        "libpcee2_libretro_android.so",
+    ),
     FBNEO(
         "fbneo",
         "FBNeo",

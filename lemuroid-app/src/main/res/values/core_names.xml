@@ -9,6 +9,7 @@
     <string name="core_name_mupen64plus_next_gles3" translatable="false">mupen64plus_next_gles3</string>
     <string name="core_name_pcsx_rearmed" translatable="false">pcsx_rearmed</string>
     <string name="core_name_ppsspp" translatable="false">ppsspp</string>
+    <string name="core_name_pcee2" translatable="false">pcee2</string>
     <string name="core_name_snes9x" translatable="false">snes9x</string>
     <string name="core_name_stella" translatable="false">stella</string>
     <string name="core_name_mame2003_plus" translatable="false">mame2003_plus</string>

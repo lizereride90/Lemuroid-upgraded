@@ -36,12 +36,12 @@ jobs:
           sudo docker image prune --all --force || true
           df -h
 
-      - name: Install Android NDK and CMake
+      - name: Install CMake and Ninja
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build
           yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager --install "platforms;android-35" "build-tools;34.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+          sdkmanager --install "platforms;android-35" "build-tools;34.0.0"
           df -h
 
       - name: Restore PCEE2 dependencies
@@ -49,14 +49,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/pcee2/deps
-          key: pcee2-android-arm64-v1-${{ hashFiles('pcee2-libretro/CMakeLists.txt', 'pcee2-libretro/pcee2-libretro/scripts/build-deps-android.sh', 'pcee2-libretro/pcee2-libretro/scripts/deps.versions') }}
+          key: pcee2-android-arm64-v2-${{ hashFiles('pcee2-libretro/CMakeLists.txt', 'pcee2-libretro/pcee2-libretro/scripts/build-deps-android.sh', 'pcee2-libretro/pcee2-libretro/scripts/deps.versions') }}
 
       - name: Build PCEE2 ARM64 Libretro core
+        # The pcee2-libretro upstream CI builds this very recipe with the
+        # runner's preinstalled latest NDK ($ANDROID_NDK_LATEST_HOME), while a
+        # pinned older NDK caused a deterministic clang toolchain failure
+        # (exit 74). Use the same toolchain, and cap jobs to avoid OOM.
+        env:
+          JOBS: "2"
         run: |
-          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}"
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          export ANDROID_NDK_ROOT="$SDK/ndk/27.2.12479018"
+          echo "ANDROID_NDK_LATEST_HOME=$ANDROID_NDK_LATEST_HOME"
+          export ANDROID_NDK_ROOT="$ANDROID_NDK_LATEST_HOME"
           test -f "$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
           df -h
           bash scripts/build-pcee2-android.sh

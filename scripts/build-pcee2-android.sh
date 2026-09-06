@@ -8,6 +8,10 @@ DEPS_DIR="$ROOT_DIR/build/pcee2/deps"
 BUILD_DIR="$ROOT_DIR/build/pcee2/cmake"
 NDK="${ANDROID_NDK_ROOT:-${ANDROID_NDK_HOME:-${ANDROID_NDK:-}}}"
 
+# Building PCEE2 on CI runners with unlimited parallelism is a frequent source
+# of OOM kills (ninja exit 74). Default to 2 jobs unless JOBS is set.
+JOBS="${JOBS:-2}"
+
 if [[ ! -f "$PCEE2_DIR/CMakeLists.txt" ]]; then
     echo "PCEE2 submodule is missing. Run: git submodule update --init --recursive"
     exit 1
@@ -18,11 +22,9 @@ if [[ -z "$NDK" || ! -f "$NDK/build/cmake/android.toolchain.cmake" ]]; then
     exit 1
 fi
 
-SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$(dirname "$(dirname "$NDK")")}}"
-if [[ -d "$SDK_ROOT/cmake/3.22.1/bin" ]]; then
-    export PATH="$SDK_ROOT/cmake/3.22.1/bin:$PATH"
-fi
-
+# Upstream CI builds this recipe with the system cmake from apt; do not try to
+# swap in the older SDK-bundled cmake 3.22.1, which is below the toolchain's
+# expectations for this codebase.
 if ! command -v cmake >/dev/null || ! command -v ninja >/dev/null; then
     echo "cmake and ninja are required to build PCEE2."
     exit 1
@@ -30,12 +32,38 @@ fi
 
 mkdir -p "$OUTPUT_DIR"
 
+export ANDROID_NDK_HOME="$NDK"
+export NINJA_JOBS="$JOBS"
+
+# The dependency recipe computes parallelism from `getconf _NPROCESSORS_ONLN`,
+# which on a CI runner reports every vCPU and causes OOM (clang exit 74) while
+# compiling shaderc. Shadow getconf with a shim that caps it at JOBS so the
+# recipe stays untouched. NINJA_JOBS is exported as belt-and-braces for any
+# recipe that honors it.
+SHIM_DIR="$(mktemp -d)"
+trap 'rm -rf "$SHIM_DIR"' EXIT
+REAL_GETCONF="$(command -v getconf)"
+cat > "$SHIM_DIR/getconf" <<SHIM
+#!/usr/bin/env bash
+if [ "\$1" = "_NPROCESSORS_ONLN" ]; then
+    echo "\${BUILD_JOBS:-2}"
+    exit 0
+fi
+exec "$REAL_GETCONF" "\$@"
+SHIM
+chmod +x "$SHIM_DIR/getconf"
+
 if [[ ! -f "$DEPS_DIR/lib/libshaderc_combined.a" ]]; then
     (
         cd "$PCEE2_DIR"
-        ANDROID_NDK="$NDK" ANDROID_ABI=arm64-v8a ANDROID_API=24 \
+        PATH="$SHIM_DIR:$PATH" BUILD_JOBS="$JOBS" NINJA_JOBS="$JOBS" \
+            ANDROID_NDK="$NDK" ANDROID_ABI=arm64-v8a ANDROID_API=24 \
             bash pcee2-libretro/scripts/build-deps-android.sh "$DEPS_DIR"
     )
+    if [[ ! -f "$DEPS_DIR/lib/libshaderc_combined.a" ]]; then
+        echo "PCEE2 dependencies build failed: libshaderc_combined.a was not produced."
+        exit 1
+    fi
 fi
 
 cmake -S "$PCEE2_DIR" -B "$BUILD_DIR" -G Ninja \
@@ -53,7 +81,7 @@ cmake -S "$PCEE2_DIR" -B "$BUILD_DIR" -G Ninja \
     "-DSHADERC_LIBRARY=$DEPS_DIR/lib/libshaderc_combined.a" \
     -DDISABLE_ADVANCE_SIMD=ON
 
-cmake --build "$BUILD_DIR" --target pcee2_libretro --parallel
+cmake --build "$BUILD_DIR" --target pcee2_libretro --parallel "$JOBS"
 
 CORE="$BUILD_DIR/bin/pcee2_libretro.so"
 if [[ ! -s "$CORE" ]]; then

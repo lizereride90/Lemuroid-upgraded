@@ -29,12 +29,20 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Free disk space for the PCEE2 native build
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk-bundle /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune --all --force || true
+          df -h
+
       - name: Install Android NDK and CMake
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager --install "platforms;android-35" "build-tools;34.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+          df -h
 
       - name: Restore PCEE2 dependencies
         id: pcee2-deps
@@ -44,9 +52,14 @@ jobs:
           key: pcee2-android-arm64-v1-${{ hashFiles('pcee2-libretro/CMakeLists.txt', 'pcee2-libretro/pcee2-libretro/scripts/build-deps-android.sh', 'pcee2-libretro/pcee2-libretro/scripts/deps.versions') }}
 
       - name: Build PCEE2 ARM64 Libretro core
-        env:
-          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
-        run: bash scripts/build-pcee2-android.sh
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          export ANDROID_NDK_ROOT="$SDK/ndk/27.2.12479018"
+          test -f "$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
+          df -h
+          bash scripts/build-pcee2-android.sh
 
       - name: Verify staged PCEE2 core
         run: |

@@ -38,6 +38,8 @@ import com.swordfish.touchinput.radial.layouts.Nintendo3DSLeft
 import com.swordfish.touchinput.radial.layouts.Nintendo3DSRight
 import com.swordfish.touchinput.radial.layouts.PCELeft
 import com.swordfish.touchinput.radial.layouts.PCERight
+import com.swordfish.touchinput.radial.layouts.PS2Left
+import com.swordfish.touchinput.radial.layouts.PS2Right
 import com.swordfish.touchinput.radial.layouts.PSPLeft
 import com.swordfish.touchinput.radial.layouts.PSPRight
 import com.swordfish.touchinput.radial.layouts.PSXDualShockLeft
@@ -61,6 +63,7 @@ enum class TouchControllerID {
     MELONDS,
     PSX,
     PSX_DUALSHOCK,
+    PS2,
     N64,
     PSP,
     SNES,
@@ -130,6 +133,12 @@ enum class TouchControllerID {
                     Config(
                         { modifier, settings -> PSXDualShockLeft(modifier, settings) },
                         { modifier, settings -> PSXDualShockRight(modifier, settings) },
+                    )
+
+                PS2 ->
+                    Config(
+                        { modifier, settings -> PS2Left(modifier, settings) },
+                        { modifier, settings -> PS2Right(modifier, settings) },
                     )
 
                 N64 ->

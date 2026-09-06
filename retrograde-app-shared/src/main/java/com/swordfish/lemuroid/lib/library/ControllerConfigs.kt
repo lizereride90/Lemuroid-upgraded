@@ -183,6 +183,24 @@ object ControllerConfigs {
                 ),
         )
 
+    val PS2_DUALSHOCK =
+        ControllerConfig(
+            "dualshock",
+            R.string.controller_dualshock,
+            TouchControllerID.PS2,
+            allowTouchRotation = true,
+            libretroDescriptor = "dualshock",
+            tiltConfigurations =
+                listOf(
+                    TILT_CONFIGURATION_DISABLED,
+                    TILT_CONFIGURATION_CROSS,
+                    TILT_CONFIGURATION_ANALOG_LEFT,
+                    TILT_CONFIGURATION_ANALOG_RIGHT,
+                    TILT_CONFIGURATION_L1_R1,
+                    TILT_CONFIGURATION_L2_R2,
+                ),
+        )
+
     val PSP =
         ControllerConfig(
             "default",

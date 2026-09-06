@@ -869,8 +869,8 @@ data class GameSystem(
                             CoreID.PCEE2,
                             controllerConfigs =
                                 hashMapOf(
-                                    0 to arrayListOf(ControllerConfigs.PSX_DUALSHOCK),
-                                    1 to arrayListOf(ControllerConfigs.PSX_DUALSHOCK),
+                                    0 to arrayListOf(ControllerConfigs.PS2_DUALSHOCK),
+                                    1 to arrayListOf(ControllerConfigs.PS2_DUALSHOCK),
                                 ),
                             rumbleSupported = true,
                             statesSupported = true,

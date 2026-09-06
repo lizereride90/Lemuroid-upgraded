@@ -61,7 +61,13 @@ if [[ ! -s "$CORE" ]]; then
     exit 1
 fi
 
-"$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" "$CORE"
+echo "Built core size before stripping:"
+ls -lh "$CORE"
+df -h "$ROOT_DIR" || true
+
+# Strip debug info only: a full strip would also remove the symbol table
+# that the retro_init sanity check below relies on.
+"$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" --strip-debug "$CORE"
 cp "$CORE" "$OUTPUT_DIR/libpcee2_libretro_android.so"
 
 if [[ ! -s "$OUTPUT_DIR/libpcee2_libretro_android.so" ]]; then
@@ -69,6 +75,8 @@ if [[ ! -s "$OUTPUT_DIR/libpcee2_libretro_android.so" ]]; then
     exit 1
 fi
 
+echo "Staged core:"
+ls -lh "$OUTPUT_DIR/libpcee2_libretro_android.so"
 "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$OUTPUT_DIR/libpcee2_libretro_android.so" | grep -q "AArch64"
 "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -Ws "$OUTPUT_DIR/libpcee2_libretro_android.so" | grep -q " retro_init"
 echo "PCEE2 ARM64 core staged at $OUTPUT_DIR/libpcee2_libretro_android.so"

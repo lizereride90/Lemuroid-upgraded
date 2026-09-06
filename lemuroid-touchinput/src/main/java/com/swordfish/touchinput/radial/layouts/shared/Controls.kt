@@ -64,6 +64,26 @@ fun SecondaryButtonR2() {
 
 context(PadKitScope, LayoutRadialSecondaryDialsScope)
 @Composable
+fun SecondaryButtonL3() {
+    LemuroidControlButton(
+        modifier = Modifier.radialPosition(150f),
+        id = Id.Key(KeyEvent.KEYCODE_BUTTON_THUMBL),
+        label = "L3",
+    )
+}
+
+context(PadKitScope, LayoutRadialSecondaryDialsScope)
+@Composable
+fun SecondaryButtonR3() {
+    LemuroidControlButton(
+        modifier = Modifier.radialPosition(30f),
+        id = Id.Key(KeyEvent.KEYCODE_BUTTON_THUMBR),
+        label = "R3",
+    )
+}
+
+context(PadKitScope, LayoutRadialSecondaryDialsScope)
+@Composable
 fun SecondaryButtonL() {
     LemuroidControlButton(
         modifier = Modifier.radialPosition(120f),

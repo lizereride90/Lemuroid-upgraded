@@ -857,7 +857,7 @@ data class GameSystem(
                             scanByFilename = false,
                             scanByUniqueExtension = false,
                             scanByPathAndSupportedExtensions = true,
-                    ),
+                        ),
                 ),
                 GameSystem(
                     SystemID.PS2,

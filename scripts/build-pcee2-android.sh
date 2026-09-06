@@ -105,6 +105,14 @@ fi
 
 echo "Staged core:"
 ls -lh "$OUTPUT_DIR/libpcee2_libretro_android.so"
-"$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$OUTPUT_DIR/libpcee2_libretro_android.so" | grep -q "AArch64"
-"$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -Ws "$OUTPUT_DIR/libpcee2_libretro_android.so" | grep -q " retro_init"
+READELF="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+HEADER_FILE="$(mktemp)"
+SYMBOLS_FILE="$(mktemp)"
+trap 'rm -rf "$SHIM_DIR" "$HEADER_FILE" "$SYMBOLS_FILE"' EXIT
+
+"$READELF" -h "$OUTPUT_DIR/libpcee2_libretro_android.so" > "$HEADER_FILE"
+"$READELF" -Ws "$OUTPUT_DIR/libpcee2_libretro_android.so" > "$SYMBOLS_FILE"
+
+grep -q "AArch64" "$HEADER_FILE"
+grep -q " retro_init" "$SYMBOLS_FILE"
 echo "PCEE2 ARM64 core staged at $OUTPUT_DIR/libpcee2_libretro_android.so"

@@ -39,101 +39,115 @@ class GameFileDownloaderTest {
     }
 
     @Test
-    fun `downloads a small file completely`() = runBlocking {
-        val payload = "hello world".repeat(10).toByteArray()
-        server.enqueue(MockResponse().setBody(payload.toByteString()))
+    fun `downloads a small file completely`() {
+        runBlocking {
+            val payload = "hello world".repeat(10).toByteArray()
+            server.enqueue(MockResponse().setBody(payload.toByteString()))
 
-        val outcome = downloader.download(server.url("/game").toString(), partFile)
+            val outcome = downloader.download(server.url("/game").toString(), partFile)
 
-        assertTrue(outcome is GameDownloadOutcome.Complete)
-        assertEquals(payload.size.toLong(), (outcome as GameDownloadOutcome.Complete).totalBytes)
-        assertEquals(payload.size.toLong(), partFile.length())
-        assertEquals(String(payload), partFile.readText())
+            assertTrue(outcome is GameDownloadOutcome.Complete)
+            assertEquals(payload.size.toLong(), (outcome as GameDownloadOutcome.Complete).totalBytes)
+            assertEquals(payload.size.toLong(), partFile.length())
+            assertEquals(String(payload), partFile.readText())
+        }
     }
 
     @Test
-    fun `resumes from an existing range-prefixed part file`() = runBlocking {
-        val payload = "0123456789".repeat(50).toByteArray()
-        partFile.writeBytes(payload.copyOfRange(0, 100))
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(206)
-                .setHeader("Content-Range", "bytes 100-499/500")
-                .setBody(payload.copyOfRange(100, 500).toByteString()),
-        )
-
-        val outcome = downloader.download(server.url("/game").toString(), partFile)
-
-        assertTrue(outcome is GameDownloadOutcome.Complete)
-        assertEquals(payload.size.toLong(), partFile.length())
-    }
-
-    @Test
-    fun `retries transient failures then succeeds`() = runBlocking {
-        val payload = "retry me".toByteArray()
-        server.enqueue(MockResponse().setResponseCode(500))
-        server.enqueue(MockResponse().setBody(payload.toByteString()))
-
-        val outcome = downloader.download(server.url("/game").toString(), partFile, maxAttempts = 3)
-
-        assertTrue(outcome is GameDownloadOutcome.Complete)
-        assertEquals(String(payload), partFile.readText())
-    }
-
-    @Test
-    fun `fails permanently on non retryable http errors`() = runBlocking {
-        server.enqueue(MockResponse().setResponseCode(404))
-
-        val outcome = downloader.download(server.url("/game").toString(), partFile, maxAttempts = 3)
-
-        assertTrue(outcome is GameDownloadOutcome.Failed)
-        assertTrue((outcome as GameDownloadOutcome.Failed).reason.contains("404"))
-    }
-
-    @Test
-    fun `detects size mismatch and cleans up`() = runBlocking {
-        server.enqueue(MockResponse().setBody("short"))
-
-        val outcome = downloader.download(server.url("/game").toString(), partFile, expectedSize = 999)
-
-        assertTrue(outcome is GameDownloadOutcome.Failed)
-        assertTrue((outcome as GameDownloadOutcome.Failed).reason.contains("size mismatch"))
-        assertTrue(!partFile.exists() || partFile.length() == 0L)
-    }
-
-    @Test
-    fun `verifies sha256 checksum`() = runBlocking {
-        val payload = "sha-256 content".toByteArray()
-        server.enqueue(MockResponse().setBody(payload.toByteString()))
-        val expected = sha256Of(payload)
-
-        val good = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = expected)
-        assertTrue(good is GameDownloadOutcome.Complete)
-
-        server.enqueue(MockResponse().setBody(payload.toByteString()))
-        val bad = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = "0".repeat(64))
-        assertTrue(bad is GameDownloadOutcome.Failed)
-    }
-
-    @Test
-    fun `pauses and preserves the partial part file`() = runBlocking {
-        partFile.writeBytes("partial".toByteArray())
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(206)
-                .setHeader("Content-Range", "bytes 7-99/100")
-                .setBody("rest of the content"),
-        )
-
-        val outcome =
-            downloader.download(
-                url = server.url("/game").toString(),
-                partFile = partFile,
-                shouldPause = { true },
+    fun `resumes from an existing range-prefixed part file`() {
+        runBlocking {
+            val payload = "0123456789".repeat(50).toByteArray()
+            partFile.writeBytes(payload.copyOfRange(0, 100))
+            server.enqueue(
+                MockResponse()
+                    .setResponseCode(206)
+                    .setHeader("Content-Range", "bytes 100-499/500")
+                    .setBody(payload.copyOfRange(100, 500).toByteString()),
             )
 
-        assertTrue(outcome is GameDownloadOutcome.Paused)
-        assertEquals("partial".length.toLong(), partFile.length())
+            val outcome = downloader.download(server.url("/game").toString(), partFile)
+
+            assertTrue(outcome is GameDownloadOutcome.Complete)
+            assertEquals(payload.size.toLong(), partFile.length())
+        }
+    }
+
+    @Test
+    fun `retries transient failures then succeeds`() {
+        runBlocking {
+            val payload = "retry me".toByteArray()
+            server.enqueue(MockResponse().setResponseCode(500))
+            server.enqueue(MockResponse().setBody(payload.toByteString()))
+
+            val outcome = downloader.download(server.url("/game").toString(), partFile, maxAttempts = 3)
+
+            assertTrue(outcome is GameDownloadOutcome.Complete)
+            assertEquals(String(payload), partFile.readText())
+        }
+    }
+
+    @Test
+    fun `fails permanently on non retryable http errors`() {
+        runBlocking {
+            server.enqueue(MockResponse().setResponseCode(404))
+
+            val outcome = downloader.download(server.url("/game").toString(), partFile, maxAttempts = 3)
+
+            assertTrue(outcome is GameDownloadOutcome.Failed)
+            assertTrue((outcome as GameDownloadOutcome.Failed).reason.contains("404"))
+        }
+    }
+
+    @Test
+    fun `detects size mismatch and cleans up`() {
+        runBlocking {
+            server.enqueue(MockResponse().setBody("short"))
+
+            val outcome = downloader.download(server.url("/game").toString(), partFile, expectedSize = 999)
+
+            assertTrue(outcome is GameDownloadOutcome.Failed)
+            assertTrue((outcome as GameDownloadOutcome.Failed).reason.contains("size mismatch"))
+            assertTrue(!partFile.exists() || partFile.length() == 0L)
+        }
+    }
+
+    @Test
+    fun `verifies sha256 checksum`() {
+        runBlocking {
+            val payload = "sha-256 content".toByteArray()
+            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            val expected = sha256Of(payload)
+
+            val good = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = expected)
+            assertTrue(good is GameDownloadOutcome.Complete)
+
+            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            val bad = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = "0".repeat(64))
+            assertTrue(bad is GameDownloadOutcome.Failed)
+        }
+    }
+
+    @Test
+    fun `pauses and preserves the partial part file`() {
+        runBlocking {
+            partFile.writeBytes("partial".toByteArray())
+            server.enqueue(
+                MockResponse()
+                    .setResponseCode(206)
+                    .setHeader("Content-Range", "bytes 7-99/100")
+                    .setBody("rest of the content"),
+            )
+
+            val outcome =
+                downloader.download(
+                    url = server.url("/game").toString(),
+                    partFile = partFile,
+                    shouldPause = { true },
+                )
+
+            assertTrue(outcome is GameDownloadOutcome.Paused)
+            assertEquals("partial".length.toLong(), partFile.length())
+        }
     }
 
     private fun sha256Of(bytes: ByteArray): String {

@@ -116,7 +116,11 @@ class SourceInstallerTest {
         assertTrue(registry.load().isEmpty())
     }
 
-    private fun buildSourceZip(manifest: String?, catalog: String?, includeCatalog: Boolean = true): File {
+    private fun buildSourceZip(
+        manifest: String?,
+        catalog: String?,
+        includeCatalog: Boolean = true,
+    ): File {
         val zipFile = tempFolder.newFile("source-${System.nanoTime()}.zip")
         ZipOutputStream(zipFile.outputStream()).use { out ->
             manifest?.let {

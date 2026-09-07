@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okio.toByteString
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +41,7 @@ class GameFileDownloaderTest {
     fun `downloads a small file completely`() {
         runBlocking {
             val payload = "hello world".repeat(10).toByteArray()
-            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            server.enqueue(MockResponse().setBody(String(payload)))
 
             val outcome = downloader.download(server.url("/game").toString(), partFile)
 
@@ -62,7 +61,7 @@ class GameFileDownloaderTest {
                 MockResponse()
                     .setResponseCode(206)
                     .setHeader("Content-Range", "bytes 100-499/500")
-                    .setBody(payload.copyOfRange(100, 500).toByteString()),
+                    .setBody(String(payload.copyOfRange(100, 500))),
             )
 
             val outcome = downloader.download(server.url("/game").toString(), partFile)
@@ -77,7 +76,7 @@ class GameFileDownloaderTest {
         runBlocking {
             val payload = "retry me".toByteArray()
             server.enqueue(MockResponse().setResponseCode(500))
-            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            server.enqueue(MockResponse().setBody(String(payload)))
 
             val outcome = downloader.download(server.url("/game").toString(), partFile, maxAttempts = 3)
 
@@ -115,13 +114,13 @@ class GameFileDownloaderTest {
     fun `verifies sha256 checksum`() {
         runBlocking {
             val payload = "sha-256 content".toByteArray()
-            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            server.enqueue(MockResponse().setBody(String(payload)))
             val expected = sha256Of(payload)
 
             val good = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = expected)
             assertTrue(good is GameDownloadOutcome.Complete)
 
-            server.enqueue(MockResponse().setBody(payload.toByteString()))
+            server.enqueue(MockResponse().setBody(String(payload)))
             val bad = downloader.download(server.url("/game").toString(), partFile, expectedSha256 = "0".repeat(64))
             assertTrue(bad is GameDownloadOutcome.Failed)
         }

@@ -77,7 +77,7 @@ PCEE2 accepts valid PS2 BIOS dumps rather than requiring one fixed filename. Its
 
 Lemuroid streams/caches full-path content through its existing storage provider path. PS2 images are never loaded wholly into RAM by this integration, but content providers and compressed formats can require substantial temporary disk space.
 
-The existing PlayStation DualShock touch layout is used for PS2: D-pad, both analog sticks, Cross, Circle, Square, Triangle, L1/L2/R1/R2, Start, and Select. PCEE2 maps these as DualShock 2 inputs and supports controller rumble. Its libretro savestate implementation is enabled, although states remain core-version-specific.
+PS2 gets its own DualShock 2 touch layout (`PS2Left`/`PS2Right`): D-pad, both analog sticks with L3/R3 press buttons, Cross, Circle, Square, Triangle, L1/L2/R1/R2, Start, and Select. PCEE2 maps these as DualShock 2 inputs and supports controller rumble. Its libretro savestate implementation is enabled, although states remain core-version-specific.
 
 ## Building
 
@@ -87,19 +87,21 @@ Initialize all source dependencies, including the pinned PCEE2 and Lemuroid core
 git submodule update --init --recursive
 ```
 
-Install Android SDK platform 35, Build Tools 34.0.0, CMake, Ninja, JDK 17, and Android NDK 27.2.12479018. Then build and stage PCEE2 before the app:
+Install Android SDK platform 35, Build Tools 34.0.0, CMake, Ninja, JDK 17, and an Android NDK. The CI workflow builds against the runner's preinstalled latest NDK (`$ANDROID_NDK_LATEST_HOME`); a pinned older NDK caused a deterministic clang toolchain failure, so use a recent NDK. Then build and stage PCEE2 before the app:
 
 ```bash
-export ANDROID_NDK_ROOT=/path/to/android-ndk/27.2.12479018
-bash scripts/build-pcee2-android.sh
+export ANDROID_NDK_ROOT=/path/to/android-ndk
+JOBS=2 bash scripts/build-pcee2-android.sh
 ./gradlew :lemuroid-app:assembleFreeBundleRelease
 ```
+
+`JOBS` caps the native build parallelism (the PCEE2 dependency recipe uses every vCPU by default, which OOMs CI runners); 2 is a safe default for a 4+ core runner. The script builds shaderc and friends into `build/pcee2/deps` (cached across CI runs), compiles the core with the system CMake/Ninja, and stages it so Gradle picks it up.
 
 The staged core is `build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so`. The APK is `lemuroid-app/build/outputs/apk/freeBundle/release/lemuroid-app-free-bundle-release.apk`.
 
 ## Releases
 
-`.github/workflows/build.yml` builds PCEE2, builds a bundled ARM64-capable release APK, verifies the native library is packaged, uploads it as an artifact, and creates a GitHub Release. Push a tag such as `v1.0.0` to create `Lemuroid-PS2-1.0.0-arm64-v8a.apk`. The workflow derives the application version name from the tag.
+`.github/workflows/build.yml` builds PCEE2, builds a bundled ARM64-capable release APK, verifies the native library is packaged, uploads it as an artifact, and creates a GitHub Release. It can be triggered manually from the Actions tab (`workflow_dispatch`) or by pushing a tag such as `v1.0.0`, which creates `Lemuroid-PS2-1.0.0-arm64-v8a.apk` and names the APK from the version tag; untagged runs name the APK after the branch. The workflow derives the application version name from the tag.
 
 The release workflow generates an ephemeral CI signing key so a clean runner can produce an installable APK. Configure a maintained signing key before distributing production builds outside this repository.
 

@@ -55,6 +55,7 @@ object ShaderChooser {
             SystemID.GG -> ShaderConfig.LCD
             SystemID.ATARI2600 -> ShaderConfig.CRT
             SystemID.PSX -> ShaderConfig.CRT
+            SystemID.PS2 -> ShaderConfig.CRT
             SystemID.MAME2003PLUS -> ShaderConfig.CRT
             SystemID.ATARI7800 -> ShaderConfig.CRT
             SystemID.PC_ENGINE -> ShaderConfig.CRT
@@ -65,6 +66,7 @@ object ShaderChooser {
             SystemID.WS -> ShaderConfig.LCD
             SystemID.WSC -> ShaderConfig.LCD
             SystemID.NINTENDO_3DS -> ShaderConfig.LCD
+            SystemID.PS2 -> ShaderConfig.CRT
         }
     }
 
@@ -288,6 +290,7 @@ object ShaderChooser {
             SystemID.WS -> upscale16BitsMobile
             SystemID.WSC -> upscale16BitsMobile
             SystemID.NINTENDO_3DS -> modern
+            SystemID.PS2 -> upscale32Bits
         }
     }
 }

@@ -95,7 +95,7 @@ bash scripts/build-pcee2-android.sh
 ./gradlew :lemuroid-app:assembleFreeBundleRelease
 ```
 
-The staged core is `build/pcee2/arm64-v8a/libpcee2_libretro_android.so`. The APK is `lemuroid-app/build/outputs/apk/freeBundle/release/lemuroid-app-free-bundle-release.apk`.
+The staged core is `build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so`. The APK is `lemuroid-app/build/outputs/apk/freeBundle/release/lemuroid-app-free-bundle-release.apk`.
 
 ## Releases
 

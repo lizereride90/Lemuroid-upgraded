@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PCEE2_DIR="$ROOT_DIR/pcee2-libretro"
-OUTPUT_DIR="$ROOT_DIR/build/pcee2/arm64-v8a"
+OUTPUT_DIR="$ROOT_DIR/build/pcee2-jni/arm64-v8a"
 DEPS_DIR="$ROOT_DIR/build/pcee2/deps"
 BUILD_DIR="$ROOT_DIR/build/pcee2/cmake"
 NDK="${ANDROID_NDK_ROOT:-${ANDROID_NDK_HOME:-${ANDROID_NDK:-}}}"

@@ -69,8 +69,8 @@ jobs:
 
       - name: Verify staged PCEE2 core
         run: |
-          test -s build/pcee2/arm64-v8a/libpcee2_libretro_android.so
-          file build/pcee2/arm64-v8a/libpcee2_libretro_android.so | grep -q "aarch64"
+          test -s build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so
+          file build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so | grep -q "aarch64"
 
       - name: Create CI signing key
         run: keytool -genkeypair -keystore release.jks -storepass lemuroid -keypass lemuroid -alias lemuroid -dname "CN=Lemuroid PS2 CI" -keyalg RSA -keysize 2048 -validity 10000

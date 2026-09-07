@@ -68,8 +68,9 @@ class SafeZipExtractorTest {
         try {
             block()
             fail("Expected ${T::class.simpleName} to be thrown")
-        } catch (expected: T) {
-            // expected
+        } catch (e: Throwable) {
+            if (e is T) return
+            throw e
         }
     }
 }

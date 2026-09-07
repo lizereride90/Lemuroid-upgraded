@@ -93,6 +93,5 @@ object SystemResolver {
         return null
     }
 
-    fun allSystems(): List<ResolvedSystem> =
-        SystemID.values().sortedBy { it.dbname }.map { ResolvedSystem(it.dbname) }
+    fun allSystems(): List<ResolvedSystem> = SystemID.values().sortedBy { it.dbname }.map { ResolvedSystem(it.dbname) }
 }

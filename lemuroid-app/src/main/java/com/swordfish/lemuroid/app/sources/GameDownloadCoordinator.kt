@@ -132,7 +132,7 @@ class GameDownloadCoordinator(
         val destDir = File(directoriesManager.getDownloadedGamesDirectory(), system.directoryName)
         destDir.mkdirs()
         val safeBase = SourceValidation.sanitizeFileName(game.title)
-        val finalName = "${safeBase}.${game.format.lowercase()}"
+        val finalName = "$safeBase.${game.format.lowercase()}"
         val partFile = File(destDir, "$finalName.part")
         val finalFile = File(destDir, finalName)
 
@@ -147,29 +147,25 @@ class GameDownloadCoordinator(
                         maxAttempts = 4,
                         shouldPause = { control.paused },
                         onProgress = {
-                            _states.value =
-                                _states.value +
-                                    (
-                                        key to
-                                            GameCatalogDownloadState.Active(
-                                                it.downloadedBytes,
-                                                it.totalBytes,
-                                                it.speedBytesPerSecond,
-                                                it.etaSeconds,
-                                            )
-                                    )
+                            setState(
+                                key,
+                                GameCatalogDownloadState.Active(
+                                    it.downloadedBytes,
+                                    it.totalBytes,
+                                    it.speedBytesPerSecond,
+                                    it.etaSeconds,
+                                ),
+                            )
                         },
                         onRetry = { attempt, delayMillis, error ->
-                            _states.value =
-                                _states.value +
-                                    (
-                                        key to
-                                            GameCatalogDownloadState.WaitingRetry(
-                                                attempt,
-                                                delayMillis,
-                                                error,
-                                            )
-                                    )
+                            setState(
+                                key,
+                                GameCatalogDownloadState.WaitingRetry(
+                                    attempt,
+                                    delayMillis,
+                                    error,
+                                ),
+                            )
                         },
                     )
 
@@ -208,6 +204,13 @@ class GameDownloadCoordinator(
                 resumeSignals.remove(key)
             }
         }
+    }
+
+    private fun setState(
+        key: String,
+        state: GameCatalogDownloadState,
+    ) {
+        _states.value = _states.value + (key to state)
     }
 
     private fun fail(

@@ -31,7 +31,10 @@ object SourceCatalogLoader {
         return manifest
     }
 
-    fun readCatalog(sourceDir: File, catalogFile: String): SourceCatalog {
+    fun readCatalog(
+        sourceDir: File,
+        catalogFile: String,
+    ): SourceCatalog {
         val catalog = File(sourceDir, catalogFile)
         if (!catalog.isFile) {
             throw SourceException.MissingCatalog("The source is missing its catalog file '$catalogFile'")
@@ -56,7 +59,10 @@ object SourceCatalogLoader {
  */
 class SourceInstaller(private val registry: SourceRegistry) {
     /** Installs [zipFile] into [sourcesRoot], rejecting duplicates and malformed packages. */
-    fun install(zipFile: File, sourcesRoot: File): InstalledSource {
+    fun install(
+        zipFile: File,
+        sourcesRoot: File,
+    ): InstalledSource {
         if (!zipFile.isFile || !isZip(zipFile)) {
             throw SourceException.NotAZip("The selected file is not a valid ZIP archive")
         }
@@ -107,7 +113,10 @@ class SourceInstaller(private val registry: SourceRegistry) {
     }
 
     /** Re-validates the stored files of an installed source and refreshes its registry entry. */
-    fun refreshLocally(source: InstalledSource, sourcesRoot: File): InstalledSource {
+    fun refreshLocally(
+        source: InstalledSource,
+        sourcesRoot: File,
+    ): InstalledSource {
         val targetDir = sourceDirectory(sourcesRoot, source.id)
         if (!targetDir.isDirectory) {
             throw SourceException.MissingManifest("The source directory is gone")
@@ -122,7 +131,11 @@ class SourceInstaller(private val registry: SourceRegistry) {
     }
 
     /** Replaces the content of an installed source from a freshly downloaded ZIP. */
-    fun updateFromZip(source: InstalledSource, zipFile: File, sourcesRoot: File): InstalledSource {
+    fun updateFromZip(
+        source: InstalledSource,
+        zipFile: File,
+        sourcesRoot: File,
+    ): InstalledSource {
         if (!zipFile.isFile || !isZip(zipFile)) {
             throw SourceException.NotAZip("The downloaded update is not a valid ZIP archive")
         }
@@ -174,12 +187,18 @@ class SourceInstaller(private val registry: SourceRegistry) {
         registry.remove(id)
     }
 
-    private fun sourceDirectory(sourcesRoot: File, id: String): File {
+    private fun sourceDirectory(
+        sourcesRoot: File,
+        id: String,
+    ): File {
         val dir = File(sourcesRoot, id)
         return if (SourceValidation.isInside(sourcesRoot, dir)) dir else File(sourcesRoot, "")
     }
 
-    private fun allocateDirectory(sourcesRoot: File, existing: List<InstalledSource>): File {
+    private fun allocateDirectory(
+        sourcesRoot: File,
+        existing: List<InstalledSource>,
+    ): File {
         sourcesRoot.mkdirs()
         val usedIds = existing.mapTo(HashSet()) { it.id }
         var index = 1
@@ -225,7 +244,10 @@ class SourceInstaller(private val registry: SourceRegistry) {
         }
     }
 
-    private fun zipContainsEntry(zipFile: File, name: String): Boolean {
+    private fun zipContainsEntry(
+        zipFile: File,
+        name: String,
+    ): Boolean {
         return runCatching {
             java.util.zip.ZipFile(zipFile).use { zip ->
                 zip.getEntry(name) != null

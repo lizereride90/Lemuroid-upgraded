@@ -110,8 +110,7 @@ class SourcesManager(
         return SourceCatalogLoader.readManifest(dir)
     }
 
-    fun findInstalled(id: String): InstalledSource? =
-        registry.load().firstOrNull { it.id == id }
+    fun findInstalled(id: String): InstalledSource? = registry.load().firstOrNull { it.id == id }
 
     fun coverFile(
         installed: InstalledSource,
@@ -124,7 +123,10 @@ class SourcesManager(
         return if (SourceValidation.isInside(sourceDir, cover) && cover.isFile) cover else null
     }
 
-    private fun copyStreamCapped(input: java.io.InputStream, output: java.io.OutputStream) {
+    private fun copyStreamCapped(
+        input: java.io.InputStream,
+        output: java.io.OutputStream,
+    ) {
         val buffer = ByteArray(16 * 1024)
         var total = 0L
         while (true) {
@@ -138,7 +140,10 @@ class SourcesManager(
         }
     }
 
-    private suspend fun downloadSourceZip(url: String, sourceId: String): File {
+    private suspend fun downloadSourceZip(
+        url: String,
+        sourceId: String,
+    ): File {
         return withContext(Dispatchers.IO) {
             val target = File(sourcesRoot, "refresh-$sourceId.zip")
             val request = Request.Builder().url(url).build()

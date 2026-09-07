@@ -18,7 +18,10 @@ data class ExtractionSummary(
  *  - nothing is ever executed; entries are only ever written as plain files.
  */
 object SafeZipExtractor {
-    fun extract(zipFile: File, destination: File): ExtractionSummary {
+    fun extract(
+        zipFile: File,
+        destination: File,
+    ): ExtractionSummary {
         val destCanonical = destination.absolutePath.let { File(it).canonicalPath }
         destination.mkdirs()
 

@@ -125,11 +125,12 @@ fun SourceCatalogScreen(
         if (state.filteredGames.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = if (state.games.isEmpty()) {
-                        stringResource(R.string.game_sources_no_catalog)
-                    } else {
-                        stringResource(R.string.game_sources_no_results)
-                    },
+                    text =
+                        if (state.games.isEmpty()) {
+                            stringResource(R.string.game_sources_no_catalog)
+                        } else {
+                            stringResource(R.string.game_sources_no_results)
+                        },
                     textAlign = TextAlign.Center,
                 )
             }

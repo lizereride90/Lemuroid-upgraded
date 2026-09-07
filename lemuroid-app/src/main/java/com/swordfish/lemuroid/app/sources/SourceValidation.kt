@@ -7,15 +7,25 @@ import java.util.Locale
 /** User-facing failures raised while installing, refreshing or loading sources. */
 sealed class SourceException(message: String) : Exception(message) {
     class NotAZip(message: String) : SourceException(message)
+
     class MissingManifest(message: String) : SourceException(message)
+
     class InvalidManifest(message: String) : SourceException(message)
+
     class MissingCatalog(message: String) : SourceException(message)
+
     class InvalidCatalog(message: String) : SourceException(message)
+
     class UnsafeArchivePath(message: String) : SourceException(message)
+
     class UnsupportedSystem(message: String) : SourceException(message)
+
     class ExtractionFailed(message: String) : SourceException(message)
+
     class DuplicateSource(message: String) : SourceException(message)
+
     class ArchiveTooLarge(message: String) : SourceException(message)
+
     class CatalogTooLarge(message: String) : SourceException(message)
 }
 
@@ -105,7 +115,10 @@ object SourceValidation {
         return null
     }
 
-    private fun validateOptionalText(value: String?, maxLength: Int): String? {
+    private fun validateOptionalText(
+        value: String?,
+        maxLength: Int,
+    ): String? {
         if (value != null && value.length > maxLength) {
             return "A source field is too long."
         }
@@ -149,7 +162,10 @@ object SourceValidation {
     }
 
     /** Guards against zip-slip on the canonical path join. */
-    fun isInside(base: File, candidate: File): Boolean {
+    fun isInside(
+        base: File,
+        candidate: File,
+    ): Boolean {
         val baseCanonical = base.canonicalPath
         val candidateCanonical = candidate.canonicalPath
         return candidateCanonical == baseCanonical ||

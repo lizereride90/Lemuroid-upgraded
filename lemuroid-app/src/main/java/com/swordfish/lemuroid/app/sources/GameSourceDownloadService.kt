@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.sources
 
-import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import androidx.core.app.NotificationManagerCompat

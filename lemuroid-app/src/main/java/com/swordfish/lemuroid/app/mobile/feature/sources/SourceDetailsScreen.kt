@@ -110,7 +110,10 @@ fun SourceDetailsScreen(
 }
 
 @Composable
-private fun InfoRow(label: String, value: String?) {
+private fun InfoRow(
+    label: String,
+    value: String?,
+) {
     if (value.isNullOrBlank()) return
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         HorizontalDivider()

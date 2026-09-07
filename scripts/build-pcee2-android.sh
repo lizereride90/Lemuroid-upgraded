@@ -54,6 +54,9 @@ SHIM
 chmod +x "$SHIM_DIR/getconf"
 
 if [[ ! -f "$DEPS_DIR/lib/libshaderc_combined.a" ]]; then
+    # The dependency recipe resolves its install prefix with `realpath`, which
+    # requires the directory to already exist.
+    mkdir -p "$DEPS_DIR"
     (
         cd "$PCEE2_DIR"
         PATH="$SHIM_DIR:$PATH" BUILD_JOBS="$JOBS" NINJA_JOBS="$JOBS" \

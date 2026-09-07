@@ -14,7 +14,10 @@ android {
         versionName = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: "1.17.0-ps2"
         applicationId = "com.swordfish.lemuroid"
     }
-    sourceSets.getByName("main").jniLibs.srcDir("$rootDir/build/pcee2/arm64-v8a")
+    // The PCEE2 build script stages the core as <abi>/libpcee2_libretro_android.so,
+    // so the jniLibs source dir must be the parent (build/pcee2), not the ABI dir
+    // itself, for AGP to recognize a proper ABI folder structure.
+    sourceSets.getByName("main").jniLibs.srcDir("$rootDir/build/pcee2")
     flavorDimensions += listOf("opensource", "cores")
 
     if (usePlayDynamicFeatures()) {

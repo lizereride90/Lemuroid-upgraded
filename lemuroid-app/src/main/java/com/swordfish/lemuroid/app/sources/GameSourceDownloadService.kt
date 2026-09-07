@@ -55,7 +55,7 @@ class GameSourceDownloadService : DaggerService() {
             return
         }
 
-        val key = coordinator.firstActiveKey()
+        val key = coordinator.firstActiveKey() ?: return
         val title = coordinator.titleFor(key)
         val (downloaded, total, fraction) = coordinator.progressFor(key)
         val notification =

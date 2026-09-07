@@ -79,6 +79,23 @@ Lemuroid streams/caches full-path content through its existing storage provider 
 
 PS2 gets its own DualShock 2 touch layout (`PS2Left`/`PS2Right`): D-pad, both analog sticks with L3/R3 press buttons, Cross, Circle, Square, Triangle, L1/L2/R1/R2, Start, and Select. PCEE2 maps these as DualShock 2 inputs and supports controller rumble. Its libretro savestate implementation is enabled, although states remain core-version-specific.
 
+## Game Sources
+
+Catalog-driven game downloads. Import a **source package** (ZIP) under *Game Sources*, browse its
+catalog with search and system filters, then download games straight into the library —
+organized automatically into `Games/<system>/` — no manual file management or storage permission.
+
+- Data-only packages: `source.json` manifest + `games.json` catalog + optional covers. Nothing is
+  executed.
+- Hardened extraction: zip-slip/traversal protected, HTTP(S)-only URLs, and strict size caps
+  (manifest 64 KB, catalog 16 MB, package 512 MB, 10k entries).
+- Streaming downloads with progress, pause/resume, retry with backoff, cancel and optional
+  SHA-256 verification, kept alive by a foreground service.
+- Deleting a source never deletes downloaded games.
+
+Read the full spec in [`docs/Game-Sources.md`](docs/Game-Sources.md). A legal, importable
+reference package lives in [`example-source/`](example-source/).
+
 ## Building
 
 Initialize all source dependencies, including the pinned PCEE2 and Lemuroid core submodules:

@@ -47,6 +47,14 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevi
 import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsScreen
 import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.shortcuts.ShortcutsGenerator
+import com.swordfish.lemuroid.app.mobile.feature.sources.GameSourcesScreen
+import com.swordfish.lemuroid.app.mobile.feature.sources.GameSourcesViewModel
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceCatalogScreen
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceCatalogViewModel
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceDetailsScreen
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceDetailsViewModel
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceGameDetailScreen
+import com.swordfish.lemuroid.app.mobile.feature.sources.SourceGameDetailViewModel
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsScreen
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsViewModel
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
@@ -57,6 +65,8 @@ import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
 import com.swordfish.lemuroid.app.shared.main.BusyActivity
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.app.shared.settings.SettingsInteractor
+import com.swordfish.lemuroid.app.sources.GameDownloadCoordinator
+import com.swordfish.lemuroid.app.sources.SourcesManager
 import com.swordfish.lemuroid.common.coroutines.safeLaunch
 import com.swordfish.lemuroid.ext.feature.review.ReviewManager
 import com.swordfish.lemuroid.lib.android.RetrogradeComponentActivity
@@ -101,6 +111,12 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
 
     @Inject
     lateinit var inputDeviceManager: InputDeviceManager
+
+    @Inject
+    lateinit var sourcesManager: SourcesManager
+
+    @Inject
+    lateinit var gameDownloadCoordinator: GameDownloadCoordinator
 
     private val reviewManager = ReviewManager()
 
@@ -259,6 +275,81 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                             onGameClick = onGameClick,
                             onGameLongClick = onGameLongClick,
                             onGameFavoriteToggle = onGameFavoriteToggle,
+                        )
+                    }
+                    composable(MainRoute.GAME_SOURCES) {
+                        GameSourcesScreen(
+                            modifier = Modifier.padding(padding),
+                            viewModel =
+                                viewModel(factory = GameSourcesViewModel.Factory(sourcesManager)),
+                            onBrowse = { sourceId ->
+                                navController.navigate("sources/catalog/$sourceId")
+                            },
+                            onShowDetails = { sourceId ->
+                                navController.navigate("sources/info/$sourceId")
+                            },
+                        )
+                    }
+                    composable(MainRoute.GAME_SOURCES_CATALOG) { entry ->
+                        val sourceId =
+                            entry.arguments?.getString("sourceId")
+                                ?: return@composable
+                        SourceCatalogScreen(
+                            modifier = Modifier.padding(padding),
+                            viewModel =
+                                viewModel(
+                                    factory =
+                                        SourceCatalogViewModel.Factory(
+                                            sourceId,
+                                            sourcesManager,
+                                            gameDownloadCoordinator,
+                                        ),
+                                ),
+                            onGameClicked = { installed, game ->
+                                navController.navigate("sources/game/${installed.id}/${game.id}")
+                            },
+                        )
+                    }
+                    composable(MainRoute.GAME_SOURCES_INFO) { entry ->
+                        val sourceId =
+                            entry.arguments?.getString("sourceId")
+                                ?: return@composable
+                        SourceDetailsScreen(
+                            modifier = Modifier.padding(padding),
+                            viewModel =
+                                viewModel(
+                                    factory =
+                                        SourceDetailsViewModel.Factory(
+                                            sourceId,
+                                            sourcesManager,
+                                        ),
+                                ),
+                            onBrowseCatalog = { id ->
+                                navController.navigate("sources/catalog/$id")
+                            },
+                        )
+                    }
+                    composable(MainRoute.GAME_SOURCES_DETAIL) { entry ->
+                        val sourceId =
+                            entry.arguments?.getString("sourceId")
+                                ?: return@composable
+                        val gameId =
+                            entry.arguments?.getString("gameId")
+                                ?: return@composable
+                        SourceGameDetailScreen(
+                            modifier = Modifier.padding(padding),
+                            viewModel =
+                                viewModel(
+                                    factory =
+                                        SourceGameDetailViewModel.Factory(
+                                            sourceId,
+                                            gameId,
+                                            sourcesManager,
+                                            gameDownloadCoordinator,
+                                            retrogradeDb,
+                                            gameInteractor,
+                                        ),
+                                ),
                         )
                     }
                     composable(MainRoute.SETTINGS) {

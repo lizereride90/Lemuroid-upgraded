@@ -55,7 +55,19 @@ class LocalStorageProvider(
     override val enabledByDefault = true
 
     override fun listBaseStorageFiles(): Flow<List<BaseStorageFile>> =
-        walkDirectory(getExternalFolder() ?: directoriesManager.getInternalRomsDirectory())
+        walkDirectories(
+            listOf(
+                getExternalFolder() ?: directoriesManager.getInternalRomsDirectory(),
+                directoriesManager.getDownloadedGamesDirectory(),
+            ),
+        )
+
+    private fun walkDirectories(roots: List<File>): Flow<List<BaseStorageFile>> =
+        flow {
+            roots.forEach { root ->
+                walkDirectory(root).collect { emit(it) }
+            }
+        }
 
     override fun getStorageFile(baseStorageFile: BaseStorageFile): StorageFile? {
         return DocumentFileParser.parseDocumentFile(context, baseStorageFile)

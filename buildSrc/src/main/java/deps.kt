@@ -168,6 +168,10 @@ object deps {
         const val padkit                   = "io.github.swordfish90:padkit:${versions.padkit}"
         const val libretrodroid            = "com.github.Swordfish90:LibretroDroid:${versions.libretrodroid}"
 //        const val libretrodroid            = "com.swordfish:libretrodroid:unspecified"
+
+        const val junit                     = "junit:junit:4.13.2"
+        const val kotlinxCoroutinesTest     = "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+        const val mockwebserver             = "com.squareup.okhttp3:mockwebserver:${versions.okHttp}"
     }
 
     object plugins {

@@ -1,0 +1,8 @@
+{
+  "name": "Homebrew Collection",
+  "version": "1.0",
+  "author": "Lemuroid Game Sources",
+  "description": "Reference source package demonstrating the Game Sources catalog format. Contains free homebrew entries with placeholder cover art; download URLs are illustrative.",
+  "catalog": "games.json",
+  "sourceUrl": null
+}

@@ -113,6 +113,36 @@ class NotificationsManager(private val applicationContext: Context) {
         return builder.build()
     }
 
+    fun gameSourceDownloadNotification(
+        activeCount: Int,
+        title: String?,
+        fraction: Float,
+    ): Notification {
+        createDefaultNotificationChannel()
+
+        val contentTitle =
+            if (activeCount <= 1) {
+                applicationContext.getString(R.string.game_source_download_notification_title, title ?: "")
+            } else {
+                applicationContext.getString(R.string.game_source_download_notification_title_multi, activeCount)
+            }
+
+        val builder =
+            NotificationCompat.Builder(applicationContext, DEFAULT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_lemuroid_tiny)
+                .setContentTitle(contentTitle)
+                .setContentText(applicationContext.getString(R.string.game_source_download_notification_message))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+
+        if (fraction > 0f) {
+            builder.setProgress(100, (fraction * 100).toInt(), false)
+        }
+
+        return builder.build()
+    }
+
     fun saveSyncNotification(): Notification {
         createDefaultNotificationChannel()
 
@@ -146,5 +176,6 @@ class NotificationsManager(private val applicationContext: Context) {
         const val SAVE_SYNC_NOTIFICATION_ID = 2
         const val GAME_RUNNING_NOTIFICATION_ID = 3
         const val CORE_INSTALL_NOTIFICATION_ID = 4
+        const val GAME_SOURCE_DOWNLOAD_NOTIFICATION_ID = 5
     }
 }

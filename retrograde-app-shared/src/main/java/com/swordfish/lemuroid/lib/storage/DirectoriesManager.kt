@@ -39,4 +39,16 @@ class DirectoriesManager(private val appContext: Context) {
         File(appContext.getExternalFilesDir(null), "roms").apply {
             mkdirs()
         }
+
+    /** Root of the "Games/<system>" tree where downloaded catalog games are stored. */
+    fun getDownloadedGamesDirectory(): File =
+        File(appContext.getExternalFilesDir(null), "Games").apply {
+            mkdirs()
+        }
+
+    /** Root of the "Sources/<sourceId>" tree where installed game sources live. */
+    fun getGameSourcesDirectory(): File =
+        File(appContext.getExternalFilesDir(null), "Sources").apply {
+            mkdirs()
+        }
 }

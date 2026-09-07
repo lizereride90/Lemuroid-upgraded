@@ -1,0 +1,46 @@
+{
+  "games": [
+    {
+      "id": "homebrew-core-racer",
+      "title": "Core Racer",
+      "system": "PlayStation 2",
+      "format": "iso",
+      "size": 700000000,
+      "cover": "covers/core-racer.png",
+      "description": "A free, fan-made music-driven racing demo built for the PS2 homebrew scene.",
+      "downloadUrl": "https://example.com/games/core-racer.iso",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "version": "1.0"
+    },
+    {
+      "id": "homebrew-pocket-dungeon",
+      "title": "Pocket Dungeon Deluxe",
+      "system": "Nintendo DS",
+      "format": "nds",
+      "size": 48000000,
+      "cover": "covers/pocket-dungeon.png",
+      "description": "An open-source roguelike originally released for the DS homebrew community.",
+      "downloadUrl": "https://example.com/games/pocket-dungeon.nds"
+    },
+    {
+      "id": "homebrew-astro-blaster",
+      "title": "Astro Blaster GB",
+      "system": "Game Boy",
+      "format": "gb",
+      "size": 131072,
+      "cover": "covers/astro-blaster.png",
+      "description": "A tiny shoot-em-up made for GBCompo, freely redistributable.",
+      "downloadUrl": "https://example.com/games/astro-blaster.gb"
+    },
+    {
+      "id": "homebrew-ninja-platform",
+      "title": "Ninja Platform HD",
+      "system": "PSP",
+      "format": "cso",
+      "size": 250000000,
+      "cover": "covers/ninja-platform.png",
+      "description": "Homebrew 2D platformer showcasing the PSP custom firmware scene.",
+      "downloadUrl": "https://example.com/games/ninja-platform.cso"
+    }
+  ]
+}

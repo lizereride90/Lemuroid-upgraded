@@ -34,3 +34,8 @@ jobs:
 
     - name: Assemble debug build
       run: ./gradlew assembleFreeBundleDebug
+
+    - name: Run unit tests
+      # Game Sources feature tests: validation, zip-slip safety, installer,
+      # catalog resolution and the streaming downloader (MockWebServer).
+      run: ./gradlew :lemuroid-app:testFreeBundleDebugUnitTest

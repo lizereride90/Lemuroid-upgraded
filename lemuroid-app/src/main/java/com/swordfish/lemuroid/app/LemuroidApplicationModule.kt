@@ -37,6 +37,12 @@ import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
 import com.swordfish.lemuroid.app.shared.settings.ControllerConfigsManager
 import com.swordfish.lemuroid.app.shared.settings.StorageFrameworkPickerLauncher
+import com.swordfish.lemuroid.app.sources.DownloadedGameImporter
+import com.swordfish.lemuroid.app.sources.GameDownloadCoordinator
+import com.swordfish.lemuroid.app.sources.GameSourceDownloadService
+import com.swordfish.lemuroid.app.sources.SourceInstaller
+import com.swordfish.lemuroid.app.sources.SourceRegistry
+import com.swordfish.lemuroid.app.sources.SourcesManager
 import com.swordfish.lemuroid.app.tv.channel.ChannelHandler
 import com.swordfish.lemuroid.app.tv.settings.BiosPreferences
 import com.swordfish.lemuroid.app.tv.settings.CoresSelectionPreferences
@@ -79,6 +85,7 @@ import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
+import java.io.File
 import java.io.InputStream
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
@@ -106,6 +113,9 @@ abstract class LemuroidApplicationModule {
 
     @ContributesAndroidInjector
     abstract fun gameService(): GameService
+
+    @ContributesAndroidInjector
+    abstract fun gameSourceDownloadService(): GameSourceDownloadService
 
     @PerActivity
     @ContributesAndroidInjector(modules = [GameMenuActivity.Module::class])
@@ -386,5 +396,66 @@ abstract class LemuroidApplicationModule {
             settingsManager: SettingsManager,
             inputDeviceManager: InputDeviceManager,
         ) = RumbleManager(context, settingsManager, inputDeviceManager)
+
+        @Provides
+        @PerApp
+        @JvmStatic
+        fun sourceRegistry(directoriesManager: DirectoriesManager): SourceRegistry {
+            val registryFile = File(directoriesManager.getGameSourcesDirectory(), "sources.json")
+            return SourceRegistry(registryFile)
+        }
+
+        @Provides
+        @PerApp
+        @JvmStatic
+        fun sourceInstaller(registry: SourceRegistry): SourceInstaller = SourceInstaller(registry)
+
+        @Provides
+        @PerApp
+        @JvmStatic
+        fun downloadedGameImporter(
+            context: Context,
+            directoriesManager: DirectoriesManager,
+            db: RetrogradeDatabase,
+        ): DownloadedGameImporter =
+            DownloadedGameImporter(
+                context,
+                directoriesManager,
+                db,
+            )
+
+        @Provides
+        @PerApp
+        @JvmStatic
+        fun gameDownloadCoordinator(
+            context: Context,
+            okHttpClient: OkHttpClient,
+            directoriesManager: DirectoriesManager,
+            downloadedGameImporter: DownloadedGameImporter,
+        ): GameDownloadCoordinator =
+            GameDownloadCoordinator(
+                context,
+                okHttpClient,
+                directoriesManager,
+                downloadedGameImporter,
+            )
+
+        @Provides
+        @PerApp
+        @JvmStatic
+        fun sourcesManager(
+            context: Context,
+            directoriesManager: DirectoriesManager,
+            registry: SourceRegistry,
+            installer: SourceInstaller,
+            okHttpClient: OkHttpClient,
+        ): SourcesManager =
+            SourcesManager(
+                context,
+                directoriesManager,
+                registry,
+                installer,
+                okHttpClient,
+            )
     }
 }

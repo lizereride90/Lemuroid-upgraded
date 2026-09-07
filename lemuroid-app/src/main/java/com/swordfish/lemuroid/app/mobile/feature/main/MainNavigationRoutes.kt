@@ -3,11 +3,13 @@ package com.swordfish.lemuroid.app.mobile.feature.main
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.VideogameAsset
@@ -61,6 +63,34 @@ enum class MainRoute(
         titleId = R.string.title_games,
         parent = SYSTEMS,
         listOf(navArgument("metaSystemId") { type = NavType.StringType }),
+    ),
+    GAME_SOURCES(
+        route = "sources/home",
+        titleId = R.string.title_game_sources,
+    ),
+    GAME_SOURCES_CATALOG(
+        route = "sources/catalog/{sourceId}",
+        titleId = R.string.title_catalog,
+        parent = GAME_SOURCES,
+        listOf(navArgument("sourceId") { type = NavType.StringType }),
+        showBottomNavigation = false,
+    ),
+    GAME_SOURCES_INFO(
+        route = "sources/info/{sourceId}",
+        titleId = R.string.game_sources_details,
+        parent = GAME_SOURCES,
+        listOf(navArgument("sourceId") { type = NavType.StringType }),
+        showBottomNavigation = false,
+    ),
+    GAME_SOURCES_DETAIL(
+        route = "sources/game/{sourceId}/{gameId}",
+        titleId = R.string.game_sources_detail_title,
+        parent = GAME_SOURCES,
+        listOf(
+            navArgument("sourceId") { type = NavType.StringType },
+            navArgument("gameId") { type = NavType.StringType },
+        ),
+        showBottomNavigation = false,
     ),
     SETTINGS(
         route = "settings/home",
@@ -122,4 +152,5 @@ enum class MainNavigationRoutes(
     FAVORITES(MainRoute.FAVORITES, R.string.favorites, Icons.Filled.Favorite, Icons.Filled.FavoriteBorder),
     SYSTEMS(MainRoute.SYSTEMS, R.string.title_systems, Icons.Filled.VideogameAsset, Icons.Outlined.VideogameAsset),
     SEARCH(MainRoute.SEARCH, R.string.title_search, Icons.Filled.Search, Icons.Outlined.Search),
+    SOURCES(MainRoute.GAME_SOURCES, R.string.title_game_sources, Icons.Filled.Add, Icons.Outlined.Add),
 }

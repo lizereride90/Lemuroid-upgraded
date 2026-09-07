@@ -207,6 +207,10 @@ dependencies {
 
     implementation(deps.libs.libretrodroid)
 
+    testImplementation(deps.libs.junit)
+    testImplementation(deps.libs.kotlinxCoroutinesTest)
+    testImplementation(deps.libs.mockwebserver)
+
     // Uncomment this when using a local aar file.
     // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 

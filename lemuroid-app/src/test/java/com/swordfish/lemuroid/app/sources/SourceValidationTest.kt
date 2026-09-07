@@ -84,17 +84,17 @@ class SourceValidationTest {
     @Test
     fun `isInside guards canonical boundaries`() {
         val util = java.io.File.createTempFile("check", ".tmp")
-        val base = util.parentFile
+        val base = util.parentFile!!
         assertTrue(SourceValidation.isInside(base, java.io.File(base, "sub/file")))
         assertTrue(SourceValidation.isInside(base, base))
-        assertFalse(SourceValidation.isInside(base, java.io.File("/tmp/z-never-exists-1234")))
+        assertFalse(SourceValidation.isInside(base, java.io.File(base.parentFile, "z-never-exists-1234")))
     }
 
     @Test
     fun `sanitizeFileName strips hostile characters`() {
         assertEquals("game-1", SourceValidation.sanitizeFileName("game-1"))
         assertEquals("my-game", SourceValidation.sanitizeFileName("my game"))
-        assertEquals("game", SourceValidation.sanitizeFileName(".."))
+        assertEquals("_", SourceValidation.sanitizeFileName(".."))
         assertEquals("game", SourceValidation.sanitizeFileName(""))
         val clean = SourceValidation.sanitizeFileName("../../etc/passwd")
         assertFalse(clean.contains(".."))

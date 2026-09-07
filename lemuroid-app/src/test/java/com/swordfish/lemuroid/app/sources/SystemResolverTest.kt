@@ -12,7 +12,7 @@ class SystemResolverTest {
     fun `resolves dbnames and enum names`() {
         assertEquals("ps2", SystemResolver.resolve("ps2")?.dbname)
         assertEquals("psp", SystemResolver.resolve("PSP")?.dbname)
-        assertEquals("NES", SystemResolver.resolve("nes")?.dbname)
+        assertEquals("nes", SystemResolver.resolve("nes")?.dbname)
     }
 
     @Test

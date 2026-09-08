@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.app.utils.android.displayErrorDialog
@@ -63,6 +64,8 @@ class StorageFrameworkPickerLauncher : RetrogradeActivity() {
                     this.putString(preferenceKey, newValue.toString())
                     this.apply()
                 }
+
+                createSystemFolders(newValue)
             }
 
             startLibraryIndexWork()
@@ -84,12 +87,40 @@ class StorageFrameworkPickerLauncher : RetrogradeActivity() {
         contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
+    private fun createSystemFolders(treeUri: Uri) {
+        val childrenUri =
+            DocumentsContract.buildDocumentUriUsingTree(
+                treeUri,
+                DocumentsContract.getTreeDocumentId(treeUri),
+            )
+        SYSTEM_FOLDERS.forEach { name ->
+            try {
+                DocumentsContract.createDocument(
+                    contentResolver,
+                    childrenUri,
+                    DocumentsContract.Document.MIME_TYPE_DIR,
+                    name,
+                )
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     private fun startLibraryIndexWork() {
         LibraryIndexScheduler.scheduleLibrarySync(applicationContext)
     }
 
     companion object {
         private const val REQUEST_CODE_PICK_FOLDER = 1
+
+        private val SYSTEM_FOLDERS =
+            listOf(
+                "nes", "snes", "genesis", "gameboy", "gameboycolor", "gba", "n64",
+                "mastersystem", "gamegear", "psx", "ps2", "psp", "nds", "3ds",
+                "atari2600", "atari7800", "lynx", "segacd", "neogeopocket",
+                "wonderswan", "wonderswancolor", "dos", "fbneo", "mame",
+                "pcengine",
+            )
 
         fun pickFolder(context: Context) {
             context.startActivity(Intent(context, StorageFrameworkPickerLauncher::class.java))

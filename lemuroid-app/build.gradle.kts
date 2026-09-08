@@ -10,8 +10,8 @@ plugins {
 
 android {
     defaultConfig {
-        versionCode = 252
-        versionName = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: "1.17.0-ps2"
+        versionCode = 253
+        versionName = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: "1.1.0"
         applicationId = "com.swordfish.lemuroid"
     }
     // The PCEE2 build script stages the core into build/pcee2-jni/ as

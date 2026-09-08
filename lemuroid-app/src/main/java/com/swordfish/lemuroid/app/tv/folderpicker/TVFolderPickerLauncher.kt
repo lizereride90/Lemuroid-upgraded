@@ -8,6 +8,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.ImmersiveActivity
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
+import java.io.File
 
 class TVFolderPickerLauncher : ImmersiveActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,11 +38,21 @@ class TVFolderPickerLauncher : ImmersiveActivity() {
                     this.putString(preferenceKey, newValue.toString())
                     this.commit()
                 }
+
+                createSystemFolders(newValue)
             }
 
             startLibraryIndexWork()
         }
         finish()
+    }
+
+    private fun createSystemFolders(path: String?) {
+        if (path.isNullOrBlank()) return
+        val parent = File(path)
+        SYSTEM_FOLDERS.forEach { name ->
+            File(parent, name).mkdirs()
+        }
     }
 
     private fun startLibraryIndexWork() {
@@ -50,6 +61,14 @@ class TVFolderPickerLauncher : ImmersiveActivity() {
 
     companion object {
         private const val REQUEST_CODE_PICK_FOLDER = 1
+
+        private val SYSTEM_FOLDERS = listOf(
+            "nes", "snes", "genesis", "gameboy", "gameboycolor", "gba", "n64",
+            "mastersystem", "gamegear", "psx", "ps2", "psp", "nds", "3ds",
+            "atari2600", "atari7800", "lynx", "segacd", "neogeopocket",
+            "wonderswan", "wonderswancolor", "dos", "fbneo", "mame",
+            "pcengine",
+        )
 
         fun pickFolder(context: Context) {
             context.startActivity(Intent(context, TVFolderPickerLauncher::class.java))

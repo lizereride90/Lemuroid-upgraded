@@ -90,8 +90,8 @@ android {
         maybeCreate("release").apply {
             storeFile = file("$rootDir/release.jks")
             keyAlias = "lemuroid"
-            storePassword = "lemuroid"
-            keyPassword = "lemuroid"
+            storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: "lemuroid"
+            keyPassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: "lemuroid"
         }
     }
 

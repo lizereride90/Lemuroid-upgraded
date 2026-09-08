@@ -72,12 +72,21 @@ jobs:
           test -s build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so
           file build/pcee2-jni/arm64-v8a/libpcee2_libretro_android.so | grep -q "aarch64"
 
-      - name: Create CI signing key
-        run: keytool -genkeypair -keystore release.jks -storepass lemuroid -keypass lemuroid -alias lemuroid -dname "CN=Lemuroid PS2 CI" -keyalg RSA -keysize 2048 -validity 10000
+      - name: Restore stable signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::RELEASE_KEYSTORE_B64 secret is not set; generate it once via the generate-keystore workflow"
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > release.jks
+          test -s release.jks
 
       - name: Build ARM64 release APK
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew scripts/build-pcee2-android.sh
           ./gradlew --no-daemon :lemuroid-app:assembleFreeBundleRelease
